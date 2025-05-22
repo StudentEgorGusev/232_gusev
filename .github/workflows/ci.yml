@@ -1,0 +1,39 @@
+name: C labs CI
+
+on: [push, pull_request]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install build-essential python3 python3-pip
+
+      - name: Build & test every lab
+        shell: bash
+        run: |
+          set -e
+          find os -type d -depth 2 | while read dir; do
+            echo "===== $dir ====="
+            if [ -f "$dir/Makefile" ]; then
+              (cd "$dir" && make)
+            else
+              base=$(basename "$dir")
+              src=$(ls "$dir"/*.c 2>/dev/null | grep "$base\.c$" || true)
+              if [ -n "$src" ]; then
+                (cd "$dir" && gcc -Wall -Wextra -std=c2x -o "$base" "$src")
+              fi
+            fi
+
+            if [ -d "$dir/tests" ]; then
+              (cd "$dir" && python3 -m unittest discover -v tests)
+            fi
+
+            (cd "$dir" && (make clean || true)) || true
+          done
+
