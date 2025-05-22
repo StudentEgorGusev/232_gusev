@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     pid_t pid1 = fork();
     if (pid1 < 0) die("fork");
 
-    if (pid1 == 0) {                         
+    if (pid1 == 0) {                        
         if (dup2(pfd[1], STDOUT_FILENO) < 0) die("dup2");
         close(pfd[0]);
         close(pfd[1]);
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
         if (dup2(pfd[0], STDIN_FILENO) < 0) die("dup2");
         close(pfd[1]);
         close(pfd[0]);
-        execvp(argv[2], &argv[2]);          
+        execvp(argv[2], &argv[2]);           
         die("execvp cmd2");
     }
 
